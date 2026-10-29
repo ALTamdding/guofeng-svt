@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>国风AI评委 - 《狼》三句半品鉴</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "PingFang SC", "Microsoft YaHei", "华文楷体", "KaiTi", serif; }
+        body { background-color: #f7f5f0; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
+        .navbar { height: 64px; background: #ffffff; display: flex; justify-content: flex-end; align-items: center; padding: 0 40px; border-bottom: 1px solid #eaeaea; }
+        .login-btn { padding: 8px 16px; border: 1px solid #ddd; border-radius: 6px; background: #fff; font-size: 14px; color: #333; cursor: pointer; }
+        .main-container { flex: 1; width: 100%; max-width: 1000px; margin: 0 auto; padding: 24px 20px 32px; display: flex; flex-direction: column; gap: 20px; }
+        .header-info { display: flex; justify-content: space-between; align-items: flex-start; }
+        .title-group h1 { font-size: 22px; font-weight: 600; color: #111; margin-bottom: 8px; }
+        .author-group { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #666; }
+        .author-avatar { width: 20px; height: 20px; background: #e5e7eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .action-group { display: flex; align-items: center; gap: 16px; }
+        .report-btn { display: flex; align-items: center; gap: 4px; font-size: 14px; color: #888; cursor: pointer; background: none; border: none; }
+        .get-btn { display: flex; align-items: center; gap: 6px; padding: 8px 20px; background: #10b981; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+        .get-btn:hover { background: #059669; }
+        .intro-scroll { display: flex; align-items: stretch; background-color: #fbf8f1; background-image: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(220,210,190,0.2) 50%, rgba(255,255,255,0) 100%); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-top: 2px solid #d8ccb6; border-bottom: 2px solid #d8ccb6; margin-bottom: 8px; position: relative; }
+        .scroll-axle { width: 24px; background: linear-gradient(to right, #a38560, #d1b894, #a38560); border-radius: 4px; margin: 4px; box-shadow: inset 0 0 5px rgba(0,0,0,0.3); }
+        .scroll-content { flex: 1; padding: 16px 24px; font-size: 14px; line-height: 1.8; color: #554433; font-family: "华文楷体", "KaiTi", serif; letter-spacing: 0.5px; }
+        .scroll-content strong { color: #b33e1f; font-size: 16px; margin-right: 8px; }
+        
+        /* 主视觉 */
+        .banner-container { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); background-color: #e8e2d2; }
+        .banner-bg { width: 100%; height: 100%; object-fit: cover; display: block; }
+        
+        /* 左侧悬浮 AI 对话框 */
+        .floating-dialog { position: absolute; left: 40px; bottom: 40px; width: 520px; background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(12px); border-radius: 12px; padding: 24px; color: white; box-shadow: 0 8px 32px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; gap: 12px; z-index: 10; }
+        .criteria-tags { display: flex; gap: 8px; margin-bottom: 4px; }
+        .tag { font-size: 12px; padding: 4px 10px; border-radius: 4px; background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .dialog-header { font-size: 14px; color: #ccc; display: flex; align-items: center; gap: 8px; }
+        .dialog-text { font-size: 17px; line-height: 1.6; font-weight: 500; letter-spacing: 0.5px; font-family: "华文楷体", "KaiTi", serif; min-height: 90px; }
+        .dialog-footer { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #aaa; margin-top: 8px; }
+        .dialog-controls { display: flex; gap: 16px; }
+        .dialog-controls span { cursor: pointer; transition: color 0.2s; }
+        .dialog-controls span:hover { color: white; }
+
+        /* 右侧交互区 */
+        .question-panel { position: absolute; right: 40px; bottom: 40px; width: 320px; display: flex; flex-direction: column; gap: 12px; align-items: flex-end; z-index: 10; }
+        
+        /* AI图片定位 - 画中画 */
+        .ai-avatar-video {
+            position: absolute;
+            right: 40px;
+            bottom: 110px; 
+            width: 160px; 
+            border-radius: 8px; 
+            border: 3px solid rgba(255, 255, 255, 0.8); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
+            z-index: 5;
+            pointer-events: none; 
+            object-fit: contain; /* 保证图片完整显示不变形 */
+            background-color: rgba(0,0,0,0.2);
+        }
+
+        .voice-btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 14px 24px; background: #ffffff; border-radius: 30px; font-size: 16px; font-weight: bold; color: #10b981; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: all 0.2s; user-select: none; border: 2px solid transparent; }
+        .voice-btn:hover { background: #f9f9f9; }
+        .voice-btn.recording { background: #10b981; color: white; transform: scale(0.98); box-shadow: 0 0 15px rgba(16, 185, 129, 0.5); border-color: #059669; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+        .fullscreen-btn { position: absolute; right: 16px; bottom: 16px; width: 32px; height: 32px; background: rgba(0,0,0,0.4); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; z-index: 10; }
+        .ai-watermark { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); background: rgba(0,0,0,0.3); color: rgba(255,255,255,0.7); padding: 4px 12px; border-radius: 12px; font-size: 12px; letter-spacing: 1px; z-index: 10; }
+        .cursor { display: inline-block; width: 2px; height: 18px; background: #fff; animation: blink 1s step-end infinite; vertical-align: middle; margin-left: 2px; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        @media (max-width: 900px) {
+            .floating-dialog { width: calc(100% - 40px); left: 20px; bottom: 100px; }
+            .question-panel { right: 20px; bottom: 20px; width: calc(100% - 40px); }
+            .ai-avatar-video { right: 20px; bottom: 90px; width: 120px; }
+            .banner-container { aspect-ratio: auto; height: 600px; }
+            .intro-scroll { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <button class="login-btn">立即登录体验</button>
+    </nav>
+
+    <main class="main-container">
+        <div class="header-info">
+            <div class="title-group">
+                <h1>国风说书人 · AI评委</h1>
+                <div class="author-group">
+                    <div class="author-avatar">👤</div>
+                    <span>春晖班 · 语文课 (《狼》改编)</span>
+                </div>
+            </div>
+            <div class="action-group">
+                <button class="report-btn"><span>ⓘ</span> 举报</button>
+                <button class="get-btn" onclick="startAIReview('测试用：直接获取点评')"><span>⚡</span> 获取AI点评</button>
+            </div>
+        </div>
+
+        <div class="intro-scroll">
+            <div class="scroll-axle"></div>
+            <div class="scroll-content">
+                <strong>【评书小识】</strong>评书，古称“说话”，是传统曲艺之瑰宝。一人、一桌、一扇、一块醒木，便能演绎千军万马、古今兴亡。评书讲究“情节引人入胜，人物形神兼备”。从长篇评书到课堂上的三句半，皆是说唱艺术，重在那画龙点睛的半句，需得“包袱”响亮，扣人心弦。
+            </div>
+            <div class="scroll-axle"></div>
+        </div>
+
+        <div class="banner-container">
+            <!-- 背景图 -->
+            <img class="banner-bg" src="bg.png" alt="水墨国风背景">
+
+            <div class="floating-dialog">
+                <div class="criteria-tags">
+                    <span class="tag">标准一：情节完整</span>
+                    <span class="tag">标准二：心理到位</span>
+                </div>
+                <div class="dialog-header"><span>🎙️ 国风说书人 · AI评委</span></div>
+                <div class="dialog-text" id="dialogText">
+                    老夫在此静候多时。今日品鉴《狼》之三句半，便按这两条铁律来评：其一，看那关键动作是否说准说全；其二，看那最后半句，是否抓住了屠户此刻的惊惧与机智！请点击“点击说话”，老夫这就为各位品鉴一番。
+                </div>
+                <div class="dialog-footer">
+                    <span>1x</span>
+                    <div class="dialog-controls">
+                        <span onclick="playCurrentVoice()" title="重听声音">🔊</span>
+                        <span onclick="resetDialog()" title="重新开始">↺</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 【修改这里】使用 avatar.jpg -->
+            <img class="ai-avatar-video" src="avatar.jpg" alt="AI说书人">
+
+            <div class="question-panel">
+                <div class="voice-btn" id="voiceBtn"><span>🎤 点击说话</span></div>
+            </div>
+
+            <div class="ai-watermark">本内容由AI生成</div>
+            <div class="fullscreen-btn">⛶</div>
+        </div>
+    </main>
+
+    <script>
+        const dialogText = document.getElementById('dialogText');
+        let typewriterTimer = null;
+        let audioCtx = null;
+        function unlockAudio() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) audioCtx = new AudioContext();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            const emptyUtterance = new SpeechSynthesisUtterance('');
+            window.speechSynthesis.speak(emptyUtterance);
+        }
+
+        const reviews = [
+            "妙哉！！汝等这段三句半，情节完整无缺。将那屠户“投骨”、“奔倚”、“劈狼”几个关键动作，说得分毫不差！尤其最后半句，把屠户由惧转智的心理抓得极准，当浮一大白！",
+            "老夫且评：情节上倒是说全了，但那半句稍欠火候。未能完全点出屠户“方欲行，转视积薪后”时的那种惊疑与后怕。若能再添几分机警，便更臻完美！",
+            "好！这最后半句绝了，一个“悟”字，抓住了屠户看破两狼假寐时的心理！只是快板节奏稍快，把“暴起，以刀劈狼首”的动作一带而过，情节略显急促，当罚酒一杯！",
+            "击节称赏！三句铺陈情节，半句直指人心。屠户“大窘”时的恐惧，“弛担持刀”时的决断，皆在这四句之中，可谓形神兼备！",
+            "此曲只应天上有！情节完整，动作精准；心理到位，半句点睛。老夫听得仿佛身临其境，当真妙极！！"
+        ];
+
+        function speakText(text) {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const sentences = text.match(/[^，。！？；：“”]+[，。！？；：“”]?/g) || [text];
+            sentences.forEach((sentence) => {
+                if (sentence.trim() === "") return;
+                const utterance = new SpeechSynthesisUtterance(sentence);
+                utterance.lang = 'zh-CN';
+                utterance.rate = 0.9;  
+                utterance.pitch = 0.9; 
+                window.speechSynthesis.speak(utterance);
+            });
+        }
+
+        function startAIReview(userInput = "") {
+            if (!userInput.trim()) {
+                dialogText.innerHTML = "老夫还未听到学子的三句半，请先点击右下角“🎤 点击说话”吟诵一番。";
+                return;
+            }
+            const randomReview = reviews[Math.floor(Math.random() * reviews.length)];
+            typeWriter(randomReview); 
+            speakText(randomReview);  
+        }
+
+        function playCurrentVoice() {
+            speakText(dialogText.innerText);
+        }
+
+        function resetDialog() {
+            window.speechSynthesis.cancel();
+            clearInterval(typewriterTimer);
+            dialogText.innerHTML = "老夫在此静候多时。今日品鉴《狼》之三句半，便按这两条铁律来评：其一，看那关键动作是否说准说全；其二，看那最后半句，是否抓住了屠户此刻的惊惧与机智！请点击“点击说话”，老夫这就为各位品鉴一番。";
+        }
+
+        function typeWriter(text) {
+            clearInterval(typewriterTimer);
+            dialogText.innerHTML = "";
+            let i = 0;
+            const cursorSpan = document.createElement('span');
+            cursorSpan.className = 'cursor';
+            dialogText.appendChild(cursorSpan);
+            typewriterTimer = setInterval(() => {
+                if (i < text.length) {
+                    cursorSpan.insertAdjacentText('beforebegin', text.charAt(i));
+                    i++;
+                } else {
+                    clearInterval(typewriterTimer);
+                    setTimeout(() => { if(cursorSpan.parentNode) cursorSpan.remove(); }, 2000);
+                }
+            }, 45);
+        }
+
+        const voiceBtn = document.getElementById('voiceBtn');
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'zh-CN';
+            recognition.interimResults = false;
+            let isRecording = false;
+
+            voiceBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (!isRecording) {
+                    unlockAudio(); 
+                    isRecording = true;
+                    voiceBtn.classList.add('recording');
+                    voiceBtn.innerHTML = '<span>🔴 聆听中...(点击结束)</span>';
+                    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+                    try { recognition.start(); } catch (err) {}
+                } else {
+                    isRecording = false;
+                    voiceBtn.classList.remove('recording');
+                    voiceBtn.innerHTML = '<span>🎤 点击说话</span>';
+                    try { recognition.stop(); } catch (err) {}
+                }
+            });
+
+            recognition.onresult = (event) => {
+                const text = event.results[0][0].transcript;
+                dialogText.innerHTML = `学子问：“${text}”<br><span style="color:#f5d742; margin-top:8px; display:inline-block;">老夫正在品鉴...</span>`;
+                setTimeout(() => { startAIReview(text); }, 1500);
+            };
+
+            recognition.onerror = (event) => {
+                isRecording = false;
+                voiceBtn.classList.remove('recording');
+                voiceBtn.innerHTML = '<span>🎤 点击说话</span>';
+                if (event.error === 'not-allowed') {
+                    dialogText.innerHTML = `⚠️ 无法使用麦克风。请允许麦克风权限。`;
+                }
+            };
+
+            recognition.onend = () => {
+                isRecording = false;
+                voiceBtn.classList.remove('recording');
+                voiceBtn.innerHTML = '<span>🎤 点击说话</span>';
+            };
+        } else {
+            voiceBtn.innerHTML = '<span>⚠️ 浏览器不支持语音</span>';
+        }
+    </script>
+</body>
+</html>
